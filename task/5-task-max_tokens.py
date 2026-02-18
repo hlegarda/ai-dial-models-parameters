@@ -1,14 +1,24 @@
-from task.app.main import run
+from task.app.client import DialClient
+from task.app.main import DIAL_ENDPOINT, DEFAULT_SYSTEM_PROMPT
+from task.models.conversation import Conversation
+from task.models.message import Message
+from task.models.role import Role
 
-# TODO:
-#  Try `max_tokens` parameter. It sets the maximum length of the AI's response. The AI will stop generating text once it hits this limit.
-#  User massage: What is token when we are working with LLM?
+USER_QUESTION = "Give me a mac and cheese recipe."
+DEPLOYMENT_NAME = "gpt-4o"
+MAX_TOKENS = 10
 
-run(
-    deployment_name='gpt-4o',
-    # TODO:
-    #  Use `max_tokens` parameter with value 10
+client = DialClient(
+    endpoint=DIAL_ENDPOINT,
+    deployment_name=DEPLOYMENT_NAME,
 )
+conversation = Conversation()
+conversation.add_message(Message(Role.SYSTEM, DEFAULT_SYSTEM_PROMPT))
+conversation.add_message(Message(Role.USER, USER_QUESTION))
 
-# Previously, we have seen that the `finish_reason` in choice was `stop`, but now it is `length`, and if you check the
-# `content,` it is clearly unfinished.
+client.get_completion(
+    messages=conversation.get_messages(),
+    print_request=False,
+    print_only_content=False,
+    max_tokens=MAX_TOKENS,
+)
