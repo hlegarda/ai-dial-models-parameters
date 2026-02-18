@@ -1,21 +1,27 @@
-from task.app.main import run
+from task.app.client import DialClient
+from task.app.main import DIAL_ENDPOINT, DEFAULT_SYSTEM_PROMPT
+from task.models.conversation import Conversation
+from task.models.message import Message
+from task.models.role import Role
 
-# TODO:
-#  Try `frequency_penalty` parameter.
-#  Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's
-#  likelihood to repeat the same line verbatim. Higher values == less repetitive text.
-#       Range: -2.0 to 2.0
-#       Default: 0.0
-#  User massage: Explain the water cycle in simple terms for children
+# positive values reduce repetition; higher == less repetitive text.
+# Range: -2.0 to 2.0, Default: 0.0. (With -2.0 the request can run very long and output may be repetitive.)
 
-run(
-    deployment_name='gpt-4o',
-    print_only_content=True,
-    # TODO:
-    #  Use `frequency_penalty` parameter with different range (-2.0 to 2.0).
+USER_QUESTION = "What's the best drummer in the world?"
+DEPLOYMENT_NAME = "gpt-4o"
+FREQUENCY_PENALTY = -1.9
+
+client = DialClient(
+    endpoint=DIAL_ENDPOINT,
+    deployment_name=DEPLOYMENT_NAME,
 )
+conversation = Conversation()
+conversation.add_message(Message(Role.SYSTEM, DEFAULT_SYSTEM_PROMPT))
+conversation.add_message(Message(Role.USER, USER_QUESTION))
 
-# Pay attention that when we set for `gpt-4o` frequency_penalty as -2.0 - the request is running too long,
-# and in the result we can get something strange (such as repetitive words in the end).
-# Copy the results and then check with separate request and ask LLM where is more repetitive blocks in texts.
-# For Anthropic and Gemini this parameter will be ignored
+client.get_completion(
+    messages=conversation.get_messages(),
+    print_request=False,
+    print_only_content=True,
+    frequency_penalty=FREQUENCY_PENALTY,
+)
