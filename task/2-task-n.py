@@ -1,21 +1,24 @@
-from task.app.main import run
+from task.app.client import DialClient
+from task.app.main import DIAL_ENDPOINT, DEFAULT_SYSTEM_PROMPT
+from task.models.conversation import Conversation
+from task.models.message import Message
+from task.models.role import Role
 
-# TODO:
-#  Try the `n` parameter with different models (`deployment_name`). With the parameter `n`, we can configure how many
-#       chat completion choices to generate for each input message
-#  User massage: Why is the snow white?
+USER_QUESTION = "What's the best faction in StarCraft 2?"
+DEPLOYMENT_NAME = "gpt-4o"
+N_CHOICES = 3  # n in range 1–5: number of alternative responses to generate
 
-# Models to try:
-# - gpt-4o
-# - claude-3-7-sonnet@20250219
-# - gemini-2.5-pro
-
-run(
-    # TODO:
-    #  1. Provide `deployment_name` with model from the list above👆
-    #  2. Use `n` parameter with value in range from 1 to 5!
+client = DialClient(
+    endpoint=DIAL_ENDPOINT,
+    deployment_name=DEPLOYMENT_NAME,
 )
+conversation = Conversation()
+conversation.add_message(Message(Role.SYSTEM, DEFAULT_SYSTEM_PROMPT))
+conversation.add_message(Message(Role.USER, USER_QUESTION))
 
-# Pay attention to the number of choices in the response!
-# If you have worked with ChatGPT, you have probably seen responses where ChatGPT offers you a choice between two
-# responses to select which one you prefer. This is done with the `n` parameter.
+client.get_completion(
+    messages=conversation.get_messages(),
+    print_request=False,
+    print_only_content=False,  # show full response so you see all choices
+    n=N_CHOICES,
+)
