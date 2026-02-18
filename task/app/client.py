@@ -98,7 +98,7 @@ class DialClient:
         if print_request:
             self._print_request(request_data, headers)
 
-        response = requests.post(url=self._endpoint, headers=headers, json=request_data, timeout=60)
+        response = requests.post(url=self._endpoint, headers=headers, json=request_data, timeout=120)
 
         if response.status_code == 200:
             data = response.json()
