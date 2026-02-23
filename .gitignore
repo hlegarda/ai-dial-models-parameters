@@ -14,8 +14,10 @@ env/
 .env.local
 .env.*.local
 
-# VS Code
+# IDE
+.idea/
 .vscode/
+.cursor/
 
 # Distribution / packaging
 build/
